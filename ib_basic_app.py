@@ -6,6 +6,7 @@ IBAPI - Getting historical data (multiple tickers)
 from ibapi.client import EClient
 from ibapi.wrapper import EWrapper
 from ibapi.contract import Contract
+import pandas as pd
 import threading
 import time
 
@@ -14,11 +15,26 @@ class TradingApp(EWrapper, EClient):
     """
     TradingApp class
     """
+
     def __init__(self):
         EClient.__init__(self, self)
+        self.data = {}
 
     def historicalData(self, reqId, bar):
-        print("HistoricalData. ReqId:", reqId, "BarData.", bar)
+        # if the key is not in the data - so create one -> list of a dictionaries
+        if reqId not in self.data:
+            self.data[reqId] = [
+                {"Date": bar.date, "Open": bar.open, "High": bar.high, "Low": bar.low, "Close": bar.close,
+                 "Volume": bar.volume}]
+        else:
+            # if the key is  in the data - so append to the insider dict
+            self.data[reqId].append(
+                {"Date": bar.date, "Open": bar.open, "High": bar.high, "Low": bar.low, "Close": bar.close,
+                 "Volume": bar.volume})
+        # prints the bar bar data
+        print("reqID:{}, date:{}, open:{}, high:{}, low:{}, close:{}, volume:{}".format(reqId, bar.date, bar.open,
+                                                                                        bar.high, bar.low, bar.close,
+                                                                                        bar.volume))
 
 
 def createConnection():
@@ -30,31 +46,13 @@ def createConnection():
     :return: return connection type Wrapper and EClient
     """
     app = TradingApp()
+    # port 4002 for ib gateway paper trading/7497 for TWS paper trading
     app.connect("127.0.0.1", 7497, clientId=1)
     return app
 
 
 def websocket_con():
     app.run()
-
-
-# open connection - global
-app = createConnection()
-
-
-def main():
-    """
-    This is the main function
-    """
-    # open connection at  app = createConnection()
-    # starting a separate daemon thread to execute the websocket connection
-    con_thread = threading.Thread(target=websocket_con, daemon=True)
-    con_thread.start()
-    time.sleep(1)  # some latency added to ensure that the connection is established
-
-    # The symbols
-    tickers = ["FB", "AMZN", "INTC"]
-    get_data_tickers(tickers)
 
 
 # creating object of the Contract class - will be used as a parameter for other function calls
@@ -113,6 +111,39 @@ def get_data_tickers(tickers):
     for ticker in tickers:
         histData(tickers.index(ticker), usTechStk(ticker), '1 D', '5 mins')
         time.sleep(1)  # some latency added to ensure that the contract details request has been processed
+
+
+def dataDataframe(symbols,TradeApp_obj):
+    "returns extracted historical data in dataframe format"
+    df_data = {}
+    for symbol in symbols:
+        df_data[symbol] = pd.DataFrame(TradeApp_obj.data[symbols.index(symbol)])
+        df_data[symbol].set_index("Date",inplace=True)
+    return df_data
+
+
+# open connection - global
+app = createConnection()
+
+
+def main():
+    """
+    This is the main function
+    """
+    # open connection at  app = createConnection()
+    # starting a separate daemon thread to execute the websocket connection
+    con_thread = threading.Thread(target=websocket_con)
+    con_thread.setDaemon(True)
+    con_thread.start()
+    time.sleep(2)  # some latency added to ensure that the connection is established
+
+    # The symbols
+    tickers = ["FB", "AMZN", "INTC"]
+    get_data_tickers(tickers)
+
+    # extract and store historical data in dataframe
+    historicalData = dataDataframe(tickers, app)
+    print("Finished!")
 
 
 if __name__ == '__main__':
