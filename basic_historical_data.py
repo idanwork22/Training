@@ -108,12 +108,14 @@ def get_data_tickers(tickers):
         time.sleep(1)  # some latency added to ensure that the contract details request has been processed
 
 
-def dataDataframe(symbols,TradeApp_obj):
-    "returns extracted historical data in dataframe format"
+def dataDataframe(symbols, TradeApp_obj):
+    """
+    returns extracted historical data in dataframe format
+    """
     df_data = {}
     for symbol in symbols:
         df_data[symbol] = pd.DataFrame(TradeApp_obj.data[symbols.index(symbol)])
-        df_data[symbol].set_index("Date",inplace=True)
+        df_data[symbol].set_index("Date", inplace=True)
     return df_data
 
 
