@@ -105,7 +105,7 @@ def get_data_tickers(tickers):
     """
     for ticker in tickers:
         histData(tickers.index(ticker), usTechStk(ticker), '1 D', '5 mins')
-        time.sleep(4)  # some latency added to ensure that the contract details request has been processed
+        time.sleep(1)  # some latency added to ensure that the contract details request has been processed
 
 
 def dataDataframe(symbols,TradeApp_obj):
@@ -127,22 +127,17 @@ def main():
     """
     # open connection at  app = createConnection()
     # starting a separate daemon thread to execute the websocket connection
-    con_thread = threading.Thread(target=websocket_con, daemon=True)
+    con_thread = threading.Thread(target=websocket_con)
+    con_thread.setDaemon(True)
     con_thread.start()
+    time.sleep(2)  # some latency added to ensure that the connection is established
 
     # The symbols
     tickers = ["FB", "AMZN", "INTC"]
-
     get_data_tickers(tickers)
 
-    starttime = time.time()  # computer time when the code run
-    timeout = time.time() + 60 * 5  # 60 sec * 5 -> 5 mins
-
-    while time.time() <= timeout:  # until the current time not equal to our total activation time
-        get_data_tickers(tickers)
-        historicalData = dataDataframe(tickers, app)  # extract and store historical data in dataframe
-        time.sleep(30 - ((time.time() - starttime) % 30.0))
-
+    # extract and store historical data in dataframe
+    historicalData = dataDataframe(tickers, app)
     print("Finished!")
 
 
