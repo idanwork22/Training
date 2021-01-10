@@ -1,7 +1,6 @@
 from ibapi.client import EClient  # create connection
 from ibapi.wrapper import EWrapper
 from ibapi.contract import Contract  # get information about stocks
-from ibapi.order import Order  # for buy/sell orders
 
 
 class TradingApp(EWrapper, EClient):
@@ -38,6 +37,10 @@ class TradingApp(EWrapper, EClient):
 
 
 def websocket_con(app):
+    """
+    :param app: type TradingApp
+    :return: run the app
+    """
     app.run()
 
 
@@ -71,6 +74,7 @@ def createContract(symbol, sec_type="STK", currency="USD", exchange="SMART"):
     contract.currency = currency
     contract.exchange = exchange
     return contract
+
 
 def histData(app,req_num, contract, duration, candle_size):
     """
