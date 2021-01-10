@@ -4,6 +4,7 @@ from ibapi.contract import Contract
 import pandas as pd
 import threading
 import time
+import basics_funtions
 
 
 class TradingApp(EWrapper, EClient):
@@ -32,70 +33,6 @@ class TradingApp(EWrapper, EClient):
                                                                                         bar.volume))
 
 
-def createConnection():
-    """
-    This function creates connection with the server
-    127.0.0.1 - the localhost IP
-    7497 - the socket port
-    clientId = the client id (can be any number)
-    :return: return connection type Wrapper and EClient
-    """
-    app = TradingApp()
-    # port 4002 for ib gateway paper trading/7497 for TWS paper trading
-    app.connect("127.0.0.1", 7497, clientId=1)
-    return app
-
-
-def websocket_con():
-    app.run()
-
-
-# creating object of the Contract class - will be used as a parameter for other function calls
-def usTechStk(symbol, sec_type="STK", currency="USD", exchange="ISLAND"):
-    """
-    Create contract with the given parameters
-    :param symbol: The stoke symbol
-    :param sec_type: always STK
-    :param currency: always USD
-    :param exchange: always ISLAND
-    :return: returns connection
-    """
-    contract = Contract()
-    contract.symbol = symbol
-    contract.secType = sec_type
-    contract.currency = currency
-    contract.exchange = exchange
-    return contract
-
-
-def histData(req_num, contract, duration, candle_size):
-    """
-
-    :param req_num: request number - every symnol - different reqId
-    :param contract: given from usTechStk function
-    :param duration: The amount of time to go back from
-    :param candle_size: The canndle size
-    :return: prints the data
-    """
-    # https://interactivebrokers.github.io/tws-api/classIBApi_1_1EClient.html#aad87a15294377608e59aec1d87420594
-    # - for more info
-    app.reqHistoricalData(reqId=req_num,
-                          contract=contract,
-                          endDateTime='',  # the empty string indicates current present moment
-                          durationStr=duration,
-                          # The amount of time (or Valid Duration String units) to go back from the
-                          # request's given end date and time.
-                          barSizeSetting=candle_size,  # The data's granularity or Valid Bar Sizes
-                          whatToShow='ADJUSTED_LAST',  # The type of data to retrieve.
-                          useRTH=1,  # Whether (1) or not (0) to retrieve data generated only within Regular Trading
-                          # Hours (RTH)
-                          formatDate=1,  # set to 1 to obtain the bars' time as yyyyMMdd HH:mm:ss
-                          keepUpToDate=0,  # Whether a subscription is made to return updates of unfinished real time
-                          # bars as they are available (True), or all data is returned on a one-time basis (False)
-                          chartOptions=[])  # EClient function to request contract details
-    # some latency added to ensure that the contract details request has been processed
-
-
 def get_data_tickers(tickers):
     """
     for every ticker in the arry - the function calls histData,
@@ -104,7 +41,7 @@ def get_data_tickers(tickers):
     :return: Only call other function
     """
     for ticker in tickers:
-        histData(tickers.index(ticker), usTechStk(ticker), '1 D', '5 mins')
+        basics_funtions.histData(app,tickers.index(ticker), basics_funtions.createContract(ticker), '1 D', '5 mins')
         time.sleep(1)  # some latency added to ensure that the contract details request has been processed
 
 
@@ -120,8 +57,7 @@ def dataDataframe(symbols, TradeApp_obj):
 
 
 # open connection - global
-app = createConnection()
-
+app = basics_funtions.createConnection()
 
 def main():
     """
@@ -129,7 +65,7 @@ def main():
     """
     # open connection at  app = createConnection()
     # starting a separate daemon thread to execute the websocket connection
-    con_thread = threading.Thread(target=websocket_con)
+    con_thread = threading.Thread(target=lambda : basics_funtions.websocket_con(app))
     con_thread.setDaemon(True)
     con_thread.start()
     time.sleep(2)  # some latency added to ensure that the connection is established
