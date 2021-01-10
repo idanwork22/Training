@@ -26,7 +26,15 @@ def main():
     app.placeOrder(order_id, connection_functions.createContract("FB"), order_functions.limitOrder("BUY", 2, 200))
     time.sleep(2)
     print(order_id)
-    order_functions.cancelWaitingOrders(app,order_id)
+    order_functions.cancelWaitingOrders(app, order_id)
+
+    # placing the order again
+    app.reqIds(-1)  # Function to trigger nextValidId function
+    time.sleep(2)  # Need to provide some lag for the nextValidId function to be triggered
+    order_id = app.nextValidOrderId
+    app.placeOrder(order_id, connection_functions.createContract("FB"), order_functions.stopLimitOrder("BUY", 2, 200,201))
+    time.sleep(2)
+    order_functions.cancelWaitingOrders(app, order_id)
     time.sleep(2)  # some latency added to ensure that the contract details request has been processed
 
 

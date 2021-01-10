@@ -1,10 +1,9 @@
 from ibapi.client import EClient
 from ibapi.wrapper import EWrapper
-from ibapi.contract import Contract
 import pandas as pd
 import threading
 import time
-import basics_funtions
+from coreFunctions import connection_functions
 
 
 class TradingApp(EWrapper, EClient):
@@ -41,7 +40,7 @@ def get_data_tickers(tickers):
     :return: Only call other function
     """
     for ticker in tickers:
-        basics_funtions.histData(app,tickers.index(ticker), basics_funtions.createContract(ticker), '1 D', '5 mins')
+        connection_functions.histData(app, tickers.index(ticker), connection_functions.createContract(ticker), '1 D', '5 mins')
         time.sleep(1)  # some latency added to ensure that the contract details request has been processed
 
 
@@ -57,7 +56,7 @@ def dataDataframe(symbols, TradeApp_obj):
 
 
 # open connection - global
-app = basics_funtions.createConnection()
+app = connection_functions.createConnection()
 
 def main():
     """
@@ -65,7 +64,7 @@ def main():
     """
     # open connection at  app = createConnection()
     # starting a separate daemon thread to execute the websocket connection
-    con_thread = threading.Thread(target=lambda : basics_funtions.websocket_con(app))
+    con_thread = threading.Thread(target=lambda : connection_functions.websocket_con(app))
     con_thread.setDaemon(True)
     con_thread.start()
     time.sleep(2)  # some latency added to ensure that the connection is established
