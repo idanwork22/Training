@@ -7,6 +7,7 @@ class TradingApp(EWrapper, EClient):
     """
         TradingApp class
     """
+
     def __init__(self):
         EClient.__init__(self, self)
         self.data = {}
@@ -19,6 +20,7 @@ class TradingApp(EWrapper, EClient):
         self.nextValidOrderId = orderId
         print("NextValidId:", orderId)
 
+    """
     def historicalData(self, reqId, bar):
         # if the key is not in the data - so create one -> list of a dictionaries
         if reqId not in self.data:
@@ -32,8 +34,9 @@ class TradingApp(EWrapper, EClient):
                  "Volume": bar.volume})
         # prints the bar bar data
         print("reqID:{}, date:{}, open:{}, high:{}, low:{}, close:{}, volume:{}".format(reqId, bar.date, bar.open,
-                                                                                        bar.high, bar.low, bar.close,
+                                                                                         bar.high, bar.low, bar.close,
                                                                                         bar.volume))
+        """
 
 
 def websocket_con(app):
@@ -76,7 +79,7 @@ def createContract(symbol, sec_type="STK", currency="USD", exchange="SMART"):
     return contract
 
 
-def histData(app,req_num, contract, duration, candle_size):
+def histData(app, req_num, contract, duration, candle_size):
     """
 
     :param req_num: request number - every symnol - different reqId
