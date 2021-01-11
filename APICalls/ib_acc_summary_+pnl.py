@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 IBAPI - Account Cash Balance, P&L information
 

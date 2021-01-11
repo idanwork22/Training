@@ -1,42 +1,25 @@
 from ibapi.client import EClient  # create connection
 from ibapi.wrapper import EWrapper
 from ibapi.contract import Contract  # get information about stocks
+from coreFunctions import tradingApp
 
-
-class TradingApp(EWrapper, EClient):
-    """
-        TradingApp class
-    """
-
-    def __init__(self):
-        EClient.__init__(self, self)
-        self.data = {}
-
-    def error(self, reqId, errorCode, errorString):
-        print("Error {} {} {}".format(reqId, errorCode, errorString))
-
-    def nextValidId(self, orderId):
-        super().nextValidId(orderId)
-        self.nextValidOrderId = orderId
-        print("NextValidId:", orderId)
-
-    """
-    def historicalData(self, reqId, bar):
-        # if the key is not in the data - so create one -> list of a dictionaries
-        if reqId not in self.data:
-            self.data[reqId] = [
-                {"Date": bar.date, "Open": bar.open, "High": bar.high, "Low": bar.low, "Close": bar.close,
-                 "Volume": bar.volume}]
-        else:
-            # if the key is  in the data - so append to the insider dict
-            self.data[reqId].append(
-                {"Date": bar.date, "Open": bar.open, "High": bar.high, "Low": bar.low, "Close": bar.close,
-                 "Volume": bar.volume})
-        # prints the bar bar data
-        print("reqID:{}, date:{}, open:{}, high:{}, low:{}, close:{}, volume:{}".format(reqId, bar.date, bar.open,
-                                                                                         bar.high, bar.low, bar.close,
-                                                                                        bar.volume))
-        """
+"""
+def historicalData(self, reqId, bar):
+    # if the key is not in the data - so create one -> list of a dictionaries
+    if reqId not in self.data:
+        self.data[reqId] = [
+            {"Date": bar.date, "Open": bar.open, "High": bar.high, "Low": bar.low, "Close": bar.close,
+             "Volume": bar.volume}]
+    else:
+        # if the key is  in the data - so append to the insider dict
+        self.data[reqId].append(
+            {"Date": bar.date, "Open": bar.open, "High": bar.high, "Low": bar.low, "Close": bar.close,
+             "Volume": bar.volume})
+    # prints the bar bar data
+    print("reqID:{}, date:{}, open:{}, high:{}, low:{}, close:{}, volume:{}".format(reqId, bar.date, bar.open,
+                                                                                     bar.high, bar.low, bar.close,
+                                                                                    bar.volume))
+"""
 
 
 def websocket_con(app):
@@ -55,7 +38,7 @@ def createConnection():
     clientId = the client id (can be any number)
     :return: return connection type Wrapper and EClient
     """
-    app = TradingApp()
+    app = tradingApp.TradingApp()
     # port 4002 for ib gateway paper trading/7497 for TWS paper trading
     app.connect("127.0.0.1", 7497, clientId=1)
     return app
