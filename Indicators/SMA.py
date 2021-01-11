@@ -4,7 +4,7 @@ import pandas as pd
 import threading
 import time
 from coreFunctions import connection_functions
-import sys
+from coreFunctions import  indicatorFunctions
 
 class TradingApp(EWrapper, EClient):
     """
@@ -32,7 +32,7 @@ class TradingApp(EWrapper, EClient):
                                                                                         bar.volume))
 
 
-def get_data_tickers(tickers):
+def get_data_tickers(app, tickers):
     """
     for every ticker in the arry - the function calls histData,
     and between calls - there is a sleep time of 5 second - for Preventing confusion
@@ -40,7 +40,8 @@ def get_data_tickers(tickers):
     :return: Only call other function
     """
     for ticker in tickers:
-        connection_functions.histData(app, tickers.index(ticker), connection_functions.createContract(ticker), '1 D', '5 mins')
+        connection_functions.histData(app, tickers.index(ticker), connection_functions.createContract(ticker), '3 D',
+                                      '5 mins')
         time.sleep(1)  # some latency added to ensure that the contract details request has been processed
 
 
@@ -55,6 +56,21 @@ def dataDataframe(symbols, TradeApp_obj):
     return df_data
 
 
+def SMA(DF):
+    """
+    function to calculate MACD
+    typical values a(fast moving average) = 12;
+    b(slow moving average) =26;
+    c(signal line ma window) =9
+    """
+    df = DF.copy()
+    df["SMA(20)"] = df["Close"].rolling(20).mean()
+    df["SMA(200)"] = df["Close"].rolling(200).mean()
+
+    df.dropna(inplace=True)
+    return df
+
+
 def main():
     """
     This is the main function
@@ -62,17 +78,19 @@ def main():
     # open connection - global
     app = connection_functions.createConnection()
     # starting a separate daemon thread to execute the websocket connection
-    con_thread = threading.Thread(target=lambda : connection_functions.websocket_con(app))
+    con_thread = threading.Thread(target=lambda: connection_functions.websocket_con(app))
     con_thread.setDaemon(True)
     con_thread.start()
     time.sleep(2)  # some latency added to ensure that the connection is established
 
     # The symbols
     tickers = ["FB", "AMZN", "INTC"]
-    get_data_tickers(tickers)
+    get_data_tickers(app, tickers)
 
     # extract and store historical data in dataframe
     historicalData = dataDataframe(tickers, app)
+
+    print(indicatorFunctions.SMA(historicalData["AMZN"],20,50,200))
     print("Finished!")
 
 
