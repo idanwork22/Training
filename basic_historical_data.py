@@ -6,6 +6,7 @@ import time
 from coreFunctions import connection_functions
 import sys
 
+
 class TradingApp(EWrapper, EClient):
     """
     TradingApp class
@@ -32,7 +33,7 @@ class TradingApp(EWrapper, EClient):
                                                                                         bar.volume))
 
 
-def get_data_tickers(tickers):
+def get_data_tickers(app,tickers):
     """
     for every ticker in the arry - the function calls histData,
     and between calls - there is a sleep time of 5 second - for Preventing confusion
@@ -69,7 +70,7 @@ def main():
 
     # The symbols
     tickers = ["FB", "AMZN", "INTC"]
-    get_data_tickers(tickers)
+    get_data_tickers(app,tickers)
 
     # extract and store historical data in dataframe
     historicalData = dataDataframe(tickers, app)
