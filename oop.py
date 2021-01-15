@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 IB API - Object Oriented Programming (OOPs) Basics - Inheritance
-
-@author: Mayank Rasu (http://rasuquant.com/wp/)
 """
 
 
